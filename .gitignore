@@ -1,0 +1,88 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.sqlite3
+*.db
+
+# Django
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+db.sqlite3
+*.sqlite3
+*.log
+*.pot
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+.env/
+
+# VSCode settings
+.vscode/
+
+
+
+# Local development files
+*.local
+*.env
+
+# MySQL and PostgreSQL database files
+*.db
+*.sql
+*.sqlite3
+
+# media and static files
+/static/
+/media/
+
+# Build directories
+build/
+dist/
+*.egg-info/
+
+# Coverage reports
+.coverage
+*.cover
+*.hypothesis/
+.tox/
+.nox/
+*.coverage
+nosetests.xml
+coverage.xml
+*.hypothesis/
+
+# Sphinx documentation
+docs/_build/
+
+# Django migrations
+*/migrations/
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# MacOS specific
+.DS_Store
+
+# Windows specific
+Thumbs.db
+
+# PyInstaller
+*.spec
+
+# Backup files
+*~
