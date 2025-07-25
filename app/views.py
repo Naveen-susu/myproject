@@ -717,138 +717,6 @@ class CustomSearchFilter(filters.SearchFilter):
         return final_queryset
 
 
-# class  InvoiceDataView(generics.ListAPIView):
-#     # queryset = InvoiceData.objects.all()
-    
-#     queryset = InvoiceData.objects.select_related('phase_name').all()
-#     serializer_class = InvoiceDataSerializer
-#     filter_backends = (CustomSearchFilter, OrderingFilter)
-#     search_fields = ('country_name', 'region_name', 'city_name', 'building_name', 'supplier_name','phase_name__name', 'data_source', 'entry_time', 'product_description', 'material_name')
-
-#     def list(self, request, *args, **kwargs):
-#         email = request.query_params.get('email', None)
-#         result=Users.objects.filter(User_ID=email).first()
-#         customerref=result.customer_ref
-#         queryset = self.filter_queryset(self.get_queryset())
-
-#         if customerref:
-#             queryset = queryset.filter(customer_ref=customerref)
-
-#         # Aggregate overall totals
-#         aggregate_data = queryset.aggregate(
-#             total_kgco2=Sum('kgco2')
-#         )
-
-#         # Aggregate totals by material name (corrected)
-#         material_name_aggregates = queryset.values('material_name').annotate(
-#             total_kgco2=Sum('kgco2')
-#         ).order_by('material_name')
-
-#         # Aggregate carbon and kgco2 based on the status of 'Estimate' and 'Actual'
-#         carbon_status_sums = queryset.aggregate(
-#             estimate_kgco2=Sum(Case(
-#                 When(data_source='EPD', then='kgco2'),
-#                 output_field=IntegerField(),
-#             )),
-#             actual_kgco2=Sum(Case(
-#                 When(data_source='Average', then='kgco2'),
-#                 output_field=IntegerField(),
-#             )),
-#         )
-
-#         # Calculate percentages if total_kgco2 is not zero
-#         total_kgco2 = aggregate_data['total_kgco2'] or 0  # Avoid division by zero
-#         if total_kgco2 > 0:
-#             estimate_percentage = (carbon_status_sums['estimate_kgco2'] or 0) / total_kgco2 * 100
-#             actual_percentage = (carbon_status_sums['actual_kgco2'] or 0) / total_kgco2 * 100
-#         else:
-#             estimate_percentage = 0
-#             actual_percentage = 0
-
-#         # Aggregate by region
-#         region_aggregates = queryset.values('region_name').annotate(
-#             total_kgco2=Sum('kgco2')
-#         ).order_by('region_name')
-
-#         # Aggregate by city
-#         city_aggregates = queryset.values('city_name').annotate(
-#             total_kgco2=Sum('kgco2')
-#         ).order_by('city_name')
-
-#         # Aggregate by building name
-#         building_aggregates = queryset.values('building_name').annotate(
-#             total_kgco2=Sum('kgco2')
-#         ).order_by('building_name')
-
-#         # Nested aggregation structure
-#         nested_structure = []
-#         for region in queryset.values('region_name').distinct():
-#             region_queryset = queryset.filter(region_name=region['region_name'])
-#             region_total = region_queryset.aggregate(
-#                 total_kgco2=Sum('kgco2')
-#             )
-            
-#             cities_data = []
-#             for city in region_queryset.values('city_name').distinct():
-#                 city_queryset = region_queryset.filter(city_name=city['city_name'])
-#                 city_total = city_queryset.aggregate(
-#                     total_kgco2=Sum('kgco2')
-#                 )
-                
-#                 buildings_data = []
-#                 for building in city_queryset.values('building_name').distinct():
-#                     building_queryset = city_queryset.filter(building_name=building['building_name'])
-#                     building_total = building_queryset.aggregate(
-#                         total_kgco2=Sum('kgco2')
-#                     )
-                    
-#                     phases_data = building_queryset.values('phase_name__name').annotate(
-#                         total_kgco2=Sum('kgco2')
-#                     ).order_by('phase_name__name')
-                    
-#                     buildings_data.append({
-#                         'building_name': building['building_name'],
-#                         'total_kgco2': building_total['total_kgco2'],
-#                         'phases': list(phases_data)
-#                     })
-                
-#                 cities_data.append({
-#                     'city_name': city['city_name'],
-#                     'total_kgco2': city_total['total_kgco2'],
-#                     'buildings': buildings_data
-#                 })
-            
-#             nested_structure.append({
-#                 'region_name': region['region_name'],
-#                 'total_kgco2': region_total['total_kgco2'],
-#                 'cities': cities_data
-#             })
-
-#         serializer = self.get_serializer(queryset, many=True)
-#         return Response({
-#             'results': serializer.data,
-#             'overall_aggregates': aggregate_data,
-#             'material_name_aggregates': list(material_name_aggregates),
-#             'carbon_status_totals': {
-#                 'estimate': {
-#                     'total_kgco2': carbon_status_sums['estimate_kgco2'] or 0
-#                 },
-#                 'actual': {
-#                     'total_kgco2': carbon_status_sums['actual_kgco2'] or 0
-#                 }
-#             },
-#             'carbon_status_percentage': {
-#                 'EPD': estimate_percentage,
-#                 'average': actual_percentage,
-#             },
-#             'region_aggregates': list(region_aggregates),
-#             'city_aggregates': list(city_aggregates),
-#             'building_aggregates': list(building_aggregates),
-#             'nested_structure': nested_structure  # Nested structure by region, city, building, and phases
-#         })
-
-
-
 class  InvoiceDataView(generics.ListAPIView):
     # queryset = InvoiceData.objects.all()
     
@@ -858,17 +726,13 @@ class  InvoiceDataView(generics.ListAPIView):
     search_fields = ('country_name', 'region_name', 'city_name', 'building_name', 'supplier_name','phase_name__name', 'data_source', 'entry_time', 'product_description', 'material_name')
 
     def list(self, request, *args, **kwargs):
-        # Get the logged-in user's email
-        user_email = self.request.user.email
+        email = request.query_params.get('email', None)
+        result=Users.objects.filter(User_ID=email).first()
+        customerref=result.customer_ref
+        queryset = self.filter_queryset(self.get_queryset())
 
-        # Fetch the corresponding customer_ref from the Users table
-        try:
-            user = Users.objects.get(User_ID=user_email)
-        except Users.DoesNotExist:
-            raise Http404("User not found in Users table")
-
-        # Initial filter by customer_ref
-        queryset = InvoiceData.objects.filter(customer_ref=user.customer_ref)
+        if customerref:
+            queryset = queryset.filter(customer_ref=customerref)
 
         # Aggregate overall totals
         aggregate_data = queryset.aggregate(
@@ -982,6 +846,142 @@ class  InvoiceDataView(generics.ListAPIView):
             'building_aggregates': list(building_aggregates),
             'nested_structure': nested_structure  # Nested structure by region, city, building, and phases
         })
+
+
+######################## Works with Token ########################################
+# class  InvoiceDataView(generics.ListAPIView):
+#     # queryset = InvoiceData.objects.all()
+    
+#     queryset = InvoiceData.objects.select_related('phase_name').all()
+#     serializer_class = InvoiceDataSerializer
+#     filter_backends = (CustomSearchFilter, OrderingFilter)
+#     search_fields = ('country_name', 'region_name', 'city_name', 'building_name', 'supplier_name','phase_name__name', 'data_source', 'entry_time', 'product_description', 'material_name')
+
+#     def list(self, request, *args, **kwargs):
+#         # Get the logged-in user's email
+#         user_email = self.request.user.email
+
+#         # Fetch the corresponding customer_ref from the Users table
+#         try:
+#             user = Users.objects.get(User_ID=user_email)
+#         except Users.DoesNotExist:
+#             raise Http404("User not found in Users table")
+
+#         # Initial filter by customer_ref
+#         queryset = InvoiceData.objects.filter(customer_ref=user.customer_ref)
+
+#         # Aggregate overall totals
+#         aggregate_data = queryset.aggregate(
+#             total_kgco2=Sum('kgco2')
+#         )
+
+#         # Aggregate totals by material name (corrected)
+#         material_name_aggregates = queryset.values('material_name').annotate(
+#             total_kgco2=Sum('kgco2')
+#         ).order_by('material_name')
+
+#         # Aggregate carbon and kgco2 based on the status of 'Estimate' and 'Actual'
+#         carbon_status_sums = queryset.aggregate(
+#             estimate_kgco2=Sum(Case(
+#                 When(data_source='EPD', then='kgco2'),
+#                 output_field=IntegerField(),
+#             )),
+#             actual_kgco2=Sum(Case(
+#                 When(data_source='Average', then='kgco2'),
+#                 output_field=IntegerField(),
+#             )),
+#         )
+
+#         # Calculate percentages if total_kgco2 is not zero
+#         total_kgco2 = aggregate_data['total_kgco2'] or 0  # Avoid division by zero
+#         if total_kgco2 > 0:
+#             estimate_percentage = (carbon_status_sums['estimate_kgco2'] or 0) / total_kgco2 * 100
+#             actual_percentage = (carbon_status_sums['actual_kgco2'] or 0) / total_kgco2 * 100
+#         else:
+#             estimate_percentage = 0
+#             actual_percentage = 0
+
+#         # Aggregate by region
+#         region_aggregates = queryset.values('region_name').annotate(
+#             total_kgco2=Sum('kgco2')
+#         ).order_by('region_name')
+
+#         # Aggregate by city
+#         city_aggregates = queryset.values('city_name').annotate(
+#             total_kgco2=Sum('kgco2')
+#         ).order_by('city_name')
+
+#         # Aggregate by building name
+#         building_aggregates = queryset.values('building_name').annotate(
+#             total_kgco2=Sum('kgco2')
+#         ).order_by('building_name')
+
+#         # Nested aggregation structure
+#         nested_structure = []
+#         for region in queryset.values('region_name').distinct():
+#             region_queryset = queryset.filter(region_name=region['region_name'])
+#             region_total = region_queryset.aggregate(
+#                 total_kgco2=Sum('kgco2')
+#             )
+            
+#             cities_data = []
+#             for city in region_queryset.values('city_name').distinct():
+#                 city_queryset = region_queryset.filter(city_name=city['city_name'])
+#                 city_total = city_queryset.aggregate(
+#                     total_kgco2=Sum('kgco2')
+#                 )
+                
+#                 buildings_data = []
+#                 for building in city_queryset.values('building_name').distinct():
+#                     building_queryset = city_queryset.filter(building_name=building['building_name'])
+#                     building_total = building_queryset.aggregate(
+#                         total_kgco2=Sum('kgco2')
+#                     )
+                    
+#                     phases_data = building_queryset.values('phase_name__name').annotate(
+#                         total_kgco2=Sum('kgco2')
+#                     ).order_by('phase_name__name')
+                    
+#                     buildings_data.append({
+#                         'building_name': building['building_name'],
+#                         'total_kgco2': building_total['total_kgco2'],
+#                         'phases': list(phases_data)
+#                     })
+                
+#                 cities_data.append({
+#                     'city_name': city['city_name'],
+#                     'total_kgco2': city_total['total_kgco2'],
+#                     'buildings': buildings_data
+#                 })
+            
+#             nested_structure.append({
+#                 'region_name': region['region_name'],
+#                 'total_kgco2': region_total['total_kgco2'],
+#                 'cities': cities_data
+#             })
+
+#         serializer = self.get_serializer(queryset, many=True)
+#         return Response({
+#             'results': serializer.data,
+#             'overall_aggregates': aggregate_data,
+#             'material_name_aggregates': list(material_name_aggregates),
+#             'carbon_status_totals': {
+#                 'estimate': {
+#                     'total_kgco2': carbon_status_sums['estimate_kgco2'] or 0
+#                 },
+#                 'actual': {
+#                     'total_kgco2': carbon_status_sums['actual_kgco2'] or 0
+#                 }
+#             },
+#             'carbon_status_percentage': {
+#                 'EPD': estimate_percentage,
+#                 'average': actual_percentage,
+#             },
+#             'region_aggregates': list(region_aggregates),
+#             'city_aggregates': list(city_aggregates),
+#             'building_aggregates': list(building_aggregates),
+#             'nested_structure': nested_structure  # Nested structure by region, city, building, and phases
+#         })
 
 
 class DesignDataAPIView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,
