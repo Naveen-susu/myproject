@@ -2551,6 +2551,76 @@ class WastePhaseAPIView(
         
 
 from rapidfuzz import fuzz
+# class WasteCarriersBrokersDealersAPIView(
+#     generics.GenericAPIView,
+#     mixins.ListModelMixin,
+#     mixins.CreateModelMixin,
+#     mixins.UpdateModelMixin,
+#     mixins.RetrieveModelMixin,
+#     mixins.DestroyModelMixin
+# ):
+#     queryset = WasteCarriersBrokersDealers.objects.all().order_by('id')
+#     serializer_class = WasteCarriersBrokersDealersSerializer
+
+#     def get_object(self, id):
+#         try:
+#             return WasteCarriersBrokersDealers.objects.get(id=id)
+#         except WasteCarriersBrokersDealers.DoesNotExist:
+#             raise Http404
+
+#     def get(self, request, id=None, *args, **kwargs):
+#         if id:
+#             id_obj = self.get_object(id)
+#             serializer = WasteCarriersBrokersDealersSerializer(id_obj)
+#             return Response(serializer.data)
+
+#         name = request.query_params.get("waste_carrier_name", "").strip()
+#         postcode = request.query_params.get("waste_carrier_postcode", "").strip()
+
+#         queryset = WasteCarriersBrokersDealers.objects.all()
+
+#         # Filter by postcode if provided (exact match)
+#         if postcode:
+#             queryset = queryset.filter(waste_carrier_postcode__iexact=postcode)
+
+#         # Apply fuzzy name match using RapidFuzz
+#         if name:
+#             # Limit to top 100 candidates before applying fuzzy match
+#             candidates = queryset[:100]
+#             # Annotate with fuzzy match score
+#             results = sorted(
+#                 candidates,
+#                 key=lambda x: fuzz.ratio(name.lower(), (x.waste_carrier_name or "").lower()),
+#                 reverse=True
+#             )[:10]
+#         else:
+#             # No fuzzy name match, return top 10
+#             results = queryset[:10]
+
+#         serializer = WasteCarriersBrokersDealersSerializer(results, many=True)
+#         return Response(serializer.data)
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = WasteCarriersBrokersDealersSerializer(data=request.data)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def put(self, request, id=None, *args, **kwargs):
+#         instance = self.get_object(id)
+#         serializer = WasteCarriersBrokersDealersSerializer(instance, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, request, id=None, *args, **kwargs):
+#         try:
+#             WasteCarriersBrokersDealers.objects.filter(id=id).delete()
+#             return Response({"success": "successfully deleted"}, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 class WasteCarriersBrokersDealersAPIView(
     generics.GenericAPIView,
     mixins.ListModelMixin,
@@ -2570,34 +2640,33 @@ class WasteCarriersBrokersDealersAPIView(
 
     def get(self, request, id=None, *args, **kwargs):
         if id:
-            id_obj = self.get_object(id)
-            serializer = WasteCarriersBrokersDealersSerializer(id_obj)
+            obj = self.get_object(id)
+            serializer = WasteCarriersBrokersDealersSerializer(obj)
             return Response(serializer.data)
 
-        name = request.query_params.get("waste_carrier_name", "").strip()
-        postcode = request.query_params.get("waste_carrier_postcode", "").strip()
+        input_name = (request.query_params.get("waste_carrier_name") or "").strip().lower()
+        input_postcode = (request.query_params.get("waste_carrier_postcode") or "").strip().lower()
 
-        queryset = WasteCarriersBrokersDealers.objects.all()
+        # Reduce DB load - scan only top 500 most recent
+        candidates = WasteCarriersBrokersDealers.objects.all().order_by('-id')[:500]
 
-        # Filter by postcode if provided (exact match)
-        if postcode:
-            queryset = queryset.filter(waste_carrier_postcode__iexact=postcode)
+        scored_results = []
+        for entry in candidates:
+            name = (entry.waste_carrier_name or "").lower()
+            postcode = (entry.waste_carrier_postcode or "").lower()
 
-        # Apply fuzzy name match using RapidFuzz
-        if name:
-            # Limit to top 100 candidates before applying fuzzy match
-            candidates = queryset[:100]
-            # Annotate with fuzzy match score
-            results = sorted(
-                candidates,
-                key=lambda x: fuzz.ratio(name.lower(), (x.waste_carrier_name or "").lower()),
-                reverse=True
-            )[:10]
-        else:
-            # No fuzzy name match, return top 10
-            results = queryset[:10]
+            name_score = fuzz.ratio(input_name, name) if input_name else 0
+            postcode_score = fuzz.ratio(input_postcode, postcode) if input_postcode else 0
 
-        serializer = WasteCarriersBrokersDealersSerializer(results, many=True)
+            # Weighted score: prioritize name
+            final_score = 0.7 * name_score + 0.3 * postcode_score
+            scored_results.append((final_score, entry))
+
+        # Sort by final score descending
+        top_matches = sorted(scored_results, key=lambda x: x[0], reverse=True)[:10]
+        top_entries = [item[1] for item in top_matches]
+
+        serializer = WasteCarriersBrokersDealersSerializer(top_entries, many=True)
         return Response(serializer.data)
 
     def post(self, request, *args, **kwargs):
@@ -2618,10 +2687,9 @@ class WasteCarriersBrokersDealersAPIView(
     def delete(self, request, id=None, *args, **kwargs):
         try:
             WasteCarriersBrokersDealers.objects.filter(id=id).delete()
-            return Response({"success": "successfully deleted"}, status=status.HTTP_200_OK)
+            return Response({"success": "Successfully deleted"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
 
 
 
