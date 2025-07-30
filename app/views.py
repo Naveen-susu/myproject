@@ -28,7 +28,7 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-
+from django.conf import settings
 from .models import *
 from .serializers import *
 
@@ -2735,7 +2735,80 @@ class WasteCarriersBrokersDealersAPIView(
 
 
 
+# class CompanyHouseAPIView(
+#     generics.GenericAPIView,
+#     mixins.ListModelMixin,
+# ):
+#     def get(self, request, *args, **kwargs):
+#         company_name = request.query_params.get("company_name")
+#         location = request.query_params.get("location")
 
+#         if not company_name or not location:
+#             return Response(
+#                 {"error": "Missing required parameters: company_name and location"},
+#                 status=status.HTTP_400_BAD_REQUEST,
+#             )
+
+#         url = "https://api.company-information.service.gov.uk/advanced-search/companies"
+#         params = {
+#             "company_name_includes": company_name,
+#             "location": location,
+#         }
+#         response = requests.get(
+#             url,
+#             params=params,
+#             auth=(settings.COMPANY_HOUSE_API_KEY, '')
+#         )
+
+#         if response.status_code != 200:
+#             return Response(
+#                 {"error": "Failed to fetch company data", "details": response.text},
+#                 status=response.status_code,
+#             )
+
+#         return Response(response.json(), status=status.HTTP_200_OK)
+
+
+
+class CompanyHouseAPIView(
+    generics.GenericAPIView,
+    mixins.ListModelMixin,
+):
+    def get(self, request, *args, **kwargs):
+        company_name = request.query_params.get("company_name")
+        location = request.query_params.get("location")
+
+        # Prepare API endpoint
+        url = "https://api.company-information.service.gov.uk/advanced-search/companies"
+
+        # Build params only if provided
+        params = {}
+        if company_name:
+            params["company_name_includes"] = company_name
+        if location:
+            params["location"] = location
+
+        if not params:
+            return Response(
+                {"error": "Please provide at least one query parameter: company_name or location"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        # Make the API request with Basic Auth (API key as username, empty password)
+        try:
+            response = requests.get(
+                url,
+                params=params,
+                auth=(settings.COMPANY_HOUSE_API_KEY, '')
+            )
+            response.raise_for_status()
+            return Response(response.json(), status=status.HTTP_200_OK)
+
+        except requests.exceptions.RequestException as e:
+            return Response(
+                {"error": "Error fetching data from Companies House", "details": str(e)},
+                status=status.HTTP_502_BAD_GATEWAY
+            )
 ###################################   CSV UPLOADS | DO NOT DELETE COMMENTED BELOW | SAVED FOR LATER USE ######################################
 
 # class FileUploadForm(forms.Form):

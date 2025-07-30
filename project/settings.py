@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 ELASTICSEARCH_HOST = os.getenv("ELASTICSEARCH_HOST", "http://elasticsearch:9200")
+COMPANY_HOUSE_API_KEY = "8c6c389d-9b6a-4b37-83c4-fe9d6cb98858"
 
 from pathlib import Path
 
