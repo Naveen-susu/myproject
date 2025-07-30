@@ -2551,6 +2551,7 @@ class WastePhaseAPIView(
         
 
 from rapidfuzz import fuzz
+from elasticsearch import Elasticsearch 
 # class WasteCarriersBrokersDealersAPIView(
 #     generics.GenericAPIView,
 #     mixins.ListModelMixin,
@@ -2655,7 +2656,13 @@ class WasteCarriersBrokersDealersAPIView(
 
         # Use ELASTICSEARCH_HOST from .env, fallback to Docker service name
         es_host = getattr(settings, "ELASTICSEARCH_HOST", "http://elasticsearch:9200")
-        es = Elasticsearch(es_host)
+        es = Elasticsearch(
+            es_host,
+            headers={
+                "Accept": "application/vnd.elasticsearch+json; compatible-with=8",
+                "Content-Type": "application/vnd.elasticsearch+json; compatible-with=8"
+            }
+        )
 
         # Build fuzzy query
         query = {

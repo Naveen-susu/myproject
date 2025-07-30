@@ -8,9 +8,12 @@ django-cors-headers==3.13.0
 djangorestframework==3.14.0
 djangorestframework-simplejwt==5.2.2
 dotenv==0.9.9
+elastic-transport==8.17.1
+#elasticsearch==9.0.2
+elasticsearch==8.11.1
 idna==3.10
 jmespath==1.0.1
-psycopg2==2.9.10
+psycopg2-binary==2.9.10
 PyJWT==2.9.0
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
