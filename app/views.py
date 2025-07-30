@@ -2644,30 +2644,48 @@ class WasteCarriersBrokersDealersAPIView(
             serializer = WasteCarriersBrokersDealersSerializer(obj)
             return Response(serializer.data)
 
-        input_name = (request.query_params.get("waste_carrier_name") or "").strip().lower()
-        input_postcode = (request.query_params.get("waste_carrier_postcode") or "").strip().lower()
+        input_name = request.query_params.get("waste_carrier_name", "").strip()
+        input_postcode = request.query_params.get("waste_carrier_postcode", "").strip()
 
-        # Reduce DB load - scan only top 500 most recent
-        candidates = WasteCarriersBrokersDealers.objects.all().order_by('-id')[:500]
+        # Fallback to DB if no search term
+        if not input_name and not input_postcode:
+            queryset = WasteCarriersBrokersDealers.objects.all().order_by('-id')[:10]
+            serializer = WasteCarriersBrokersDealersSerializer(queryset, many=True)
+            return Response(serializer.data)
 
-        scored_results = []
-        for entry in candidates:
-            name = (entry.waste_carrier_name or "").lower()
-            postcode = (entry.waste_carrier_postcode or "").lower()
+        # Use ELASTICSEARCH_HOST from .env, fallback to Docker service name
+        es_host = getattr(settings, "ELASTICSEARCH_HOST", "http://elasticsearch:9200")
+        es = Elasticsearch(es_host)
 
-            name_score = fuzz.ratio(input_name, name) if input_name else 0
-            postcode_score = fuzz.ratio(input_postcode, postcode) if input_postcode else 0
+        # Build fuzzy query
+        query = {
+            "bool": {
+                "must": [
+                    {
+                        "match": {
+                            "waste_carrier_name": {
+                                "query": input_name,
+                                "fuzziness": "AUTO"
+                            }
+                        }
+                    }
+                ],
+                "filter": [
+                    {
+                        "term": {
+                            "waste_carrier_postcode": input_postcode
+                        }
+                    }
+                ] if input_postcode else []
+            }
+        }
 
-            # Weighted score: prioritize name
-            final_score = 0.7 * name_score + 0.3 * postcode_score
-            scored_results.append((final_score, entry))
-
-        # Sort by final score descending
-        top_matches = sorted(scored_results, key=lambda x: x[0], reverse=True)[:10]
-        top_entries = [item[1] for item in top_matches]
-
-        serializer = WasteCarriersBrokersDealersSerializer(top_entries, many=True)
-        return Response(serializer.data)
+        try:
+            response = es.search(index="waste_carriers", query=query, size=10)
+            results = [hit["_source"] for hit in response["hits"]["hits"]]
+            return Response(results)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     def post(self, request, *args, **kwargs):
         serializer = WasteCarriersBrokersDealersSerializer(data=request.data)
