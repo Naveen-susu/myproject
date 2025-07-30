@@ -2552,6 +2552,7 @@ class WastePhaseAPIView(
 
 from rapidfuzz import fuzz
 from elasticsearch import Elasticsearch 
+from elasticsearch import NotFoundError 
 # class WasteCarriersBrokersDealersAPIView(
 #     generics.GenericAPIView,
 #     mixins.ListModelMixin,
@@ -2711,7 +2712,23 @@ class WasteCarriersBrokersDealersAPIView(
 
     def delete(self, request, id=None, *args, **kwargs):
         try:
+            # Delete from DB
             WasteCarriersBrokersDealers.objects.filter(id=id).delete()
+
+            # Also delete from Elasticsearch
+            es_host = getattr(settings, "ELASTICSEARCH_HOST", "http://elasticsearch:9200")
+            es = Elasticsearch(
+                es_host,
+                headers={
+                    "Accept": "application/vnd.elasticsearch+json; compatible-with=8",
+                    "Content-Type": "application/vnd.elasticsearch+json; compatible-with=8"
+                }
+            )
+            try:
+                es.delete(index="waste_carriers", id=id)
+            except NotFoundError:
+                pass  # It's okay if it wasn't found in ES
+
             return Response({"success": "Successfully deleted"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
