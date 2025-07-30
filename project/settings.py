@@ -200,6 +200,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:4000",
     "http://localhost:8000",
     "http://localhost:8080",
-    "https://frontend-app.com",
+    "https://app.aquvis.com",
     "http://149.34.128.64"
 ]

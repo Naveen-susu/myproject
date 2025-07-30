@@ -318,7 +318,7 @@ class WasteTransferNoteExtraSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteTransferNote
         # fields = '__all__'
-        fields = ['id','waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code', 'waste_quantity', 'container_size', 'number_of_containers','waste_transferor_name', 'waste_collection_point_address', 'waste_collection_point_postcode', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no', 'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status', 'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode', 'waste_carrier_license_no', 'waste_carrier_license_issue_date', 'waste_carrier_license_expiry_date', 'building_name', 'building_address', 'waste_disposal_code', 'waste_phase_code']
+        fields = ['id','waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code', 'waste_quantity', 'container_size', 'number_of_containers','waste_transferor_name', 'waste_transferor_address', 'waste_transferor_postcode', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no', 'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status', 'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode', 'waste_carrier_license_no', 'waste_carrier_license_issue_date', 'waste_carrier_license_expiry_date', 'building_name', 'building_address', 'waste_disposal_code', 'waste_phase_code']
         # extra_fields = ['building_name', 'building_address']
 
     def get_building_name(self, obj):
@@ -390,4 +390,10 @@ class WasteDisposalSerializer(serializers.ModelSerializer):
 class WastePhaseSerializer(serializers.ModelSerializer):
     class Meta:
         model = WastePhase
+        fields = '__all__'
+
+
+class WasteCarriersBrokersDealersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WasteCarriersBrokersDealers
         fields = '__all__'

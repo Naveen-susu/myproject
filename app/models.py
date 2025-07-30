@@ -397,8 +397,8 @@ class WasteTransferNote(models.Model):
     waste_tracking_note_code = models.TextField(db_column='waste_tracking_note_code', null=True, blank=True)
     waste_transfer_note_date = models.TextField(db_column='waste_transfer_note_date',max_length=300, null=True, blank=True)
     waste_transferor_name = models.TextField(db_column='waste_transferor_name',max_length=300, null=True, blank=True)
-    waste_collection_point_address = models.TextField(db_column='waste_collection_point_address',max_length=300, null=True, blank=True)
-    waste_collection_point_postcode = models.TextField(db_column='waste_collection_point_postcode',max_length=300, null=True, blank=True)
+    waste_transferor_address = models.TextField(db_column='waste_transferor_address',max_length=300, null=True, blank=True)
+    waste_transferor_postcode = models.TextField(db_column='waste_transferor_postcode',max_length=300, null=True, blank=True)
     waste_production_process = models.TextField(db_column='waste_production_process',max_length=300, null=True, blank=True)
     customer_person_name = models.TextField(db_column='customer_person_name',max_length=300, null=True, blank=True)
     ewc_code = models.TextField(db_column='ewc_code',max_length=300, null=True, blank=True)
@@ -441,5 +441,22 @@ class WasteTransferNote(models.Model):
     class Meta:
         managed = False  # This prevents Django from trying to manage the table
         db_table = 'waste_transfer_note_data'
+
+
+
+class WasteCarriersBrokersDealers(models.Model):
+    waste_carrier_license_no = models.TextField(db_column='waste_carrier_license_no',max_length=300, null=True, blank=True)
+    waste_carrier_name = models.TextField(db_column='waste_carrier_name',max_length=300, null=True, blank=True)
+    company_no = models.TextField(db_column='company_no',max_length=300, null=True, blank=True)
+    waste_carrier_license_issue_date = models.TextField(db_column='waste_carrier_license_issue_date',max_length=300, null=True, blank=True)
+    waste_carrier_expiry_date = models.TextField(db_column='waste_carrier_expiry_date',max_length=300, null=True, blank=True)
+    waste_carrier_address = models.TextField(db_column='waste_carrier_address',max_length=300, null=True, blank=True)
+    waste_carrier_postcode = models.TextField(db_column='waste_carrier_postcode',max_length=300, null=True, blank=True)
+    class Meta:
+        managed = False
+        db_table = 'waste_carriers_brokers_dealers'
+
+
+
 
 #########################################################################################################################

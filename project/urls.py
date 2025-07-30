@@ -103,7 +103,10 @@ urlpatterns = [
 
     path('api/waste-phase/', WastePhaseAPIView.as_view()),
     path('api/waste-phase/<int:id>/', WastePhaseAPIView.as_view()),
-
+    
+    path('api/waste-carriers-brokers-dealers/', WasteCarriersBrokersDealersAPIView.as_view()),
+    path('api/waste-carriers-brokers-dealers/<int:id>/', WasteCarriersBrokersDealersAPIView.as_view()), 
+############################################################################################
     # CSV Uploads
     # path('invoice_csv/', CSVUploadView.as_view(), name='upload_csv'),
     # path('design_csv/', CSVUploadViewDesign.as_view(), name='upload_design'),
