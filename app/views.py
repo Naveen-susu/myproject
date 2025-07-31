@@ -28,7 +28,9 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.conf import settings
+from rapidfuzz import fuzz
+from elasticsearch import Elasticsearch 
+from elasticsearch import NotFoundError 
 from .models import *
 from .serializers import *
 
@@ -2550,9 +2552,7 @@ class WastePhaseAPIView(
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
         
 
-from rapidfuzz import fuzz
-from elasticsearch import Elasticsearch 
-from elasticsearch import NotFoundError 
+
 # class WasteCarriersBrokersDealersAPIView(
 #     generics.GenericAPIView,
 #     mixins.ListModelMixin,
@@ -2734,7 +2734,7 @@ class WasteCarriersBrokersDealersAPIView(
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# Both Parameters Required Mandatorily
 # class CompanyHouseAPIView(
 #     generics.GenericAPIView,
 #     mixins.ListModelMixin,
@@ -2769,7 +2769,7 @@ class WasteCarriersBrokersDealersAPIView(
 #         return Response(response.json(), status=status.HTTP_200_OK)
 
 
-
+#Can use either of the parameters or both at once 
 class CompanyHouseAPIView(
     generics.GenericAPIView,
     mixins.ListModelMixin,

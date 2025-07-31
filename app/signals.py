@@ -3,12 +3,10 @@ from django.dispatch import receiver
 from .models import CustomUser
 import boto3
 from django.conf import settings
-
 from django.db.models.signals import post_save
-from django.dispatch import receiver
 from elasticsearch import Elasticsearch
 from .models import WasteCarriersBrokersDealers
-from django.conf import settings
+
 
 
 

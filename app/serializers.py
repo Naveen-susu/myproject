@@ -314,11 +314,12 @@ class WasteTransferNoteSerializer(serializers.ModelSerializer):
 class WasteTransferNoteExtraSerializer(serializers.ModelSerializer):
     building_name = serializers.SerializerMethodField()
     building_address = serializers.SerializerMethodField()
+    building_postcode = serializers.SerializerMethodField()
 
     class Meta:
         model = WasteTransferNote
         # fields = '__all__'
-        fields = ['id','waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code', 'waste_quantity', 'container_size', 'number_of_containers','waste_transferor_name', 'waste_transferor_address', 'waste_transferor_postcode', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no', 'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status', 'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode', 'waste_carrier_license_no', 'waste_carrier_license_issue_date', 'waste_carrier_license_expiry_date', 'building_name', 'building_address', 'waste_disposal_code', 'waste_phase_code']
+        fields = ['id','waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code', 'waste_quantity', 'container_size', 'number_of_containers','waste_transferor_name', 'waste_transferor_address', 'waste_transferor_postcode', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no', 'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status', 'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode', 'waste_carrier_license_no', 'waste_carrier_license_issue_date', 'waste_carrier_license_expiry_date', 'building_name', 'building_address','building_postcode', 'waste_disposal_code', 'waste_phase_code','filename']
         # extra_fields = ['building_name', 'building_address']
 
     def get_building_name(self, obj):
@@ -338,9 +339,12 @@ class WasteTransferNoteExtraSerializer(serializers.ModelSerializer):
             building.address_line_1,
             building.address_line_2,
             city_name,
-            building.postcode
         ]
         return ', '.join([part for part in address_parts if part])
+    
+    def get_building_postcode(self, obj):
+        building = AppBuilding.objects.filter(id=obj.building_id).first()
+        return building.postcode if building else None
 
 
 

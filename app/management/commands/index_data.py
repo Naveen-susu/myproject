@@ -1,3 +1,5 @@
+# app/management/commands/index_data.py
+
 from django.core.management.base import BaseCommand
 from app.models import WasteCarriersBrokersDealers
 from elasticsearch import Elasticsearch
