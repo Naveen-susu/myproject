@@ -3189,7 +3189,7 @@ class WasteEWCCodesAPIView(
         input_code = request.query_params.get("ewc_code", "").strip()
 
         if input_code:
-            queryset = WasteEWCCodes.objects.all()[:100]  # Limit for performance
+            queryset = WasteEWCCodes.objects.all()  
             matches = sorted(
                 queryset,
                 key=lambda x: fuzz.ratio(input_code.lower(), (x.ewc_code or "").lower()),
