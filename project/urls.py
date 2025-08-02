@@ -109,6 +109,15 @@ urlpatterns = [
     path('api/waste-carriers-brokers-dealers/', WasteCarriersBrokersDealersAPIView.as_view()),
     path('api/waste-carriers-brokers-dealers/<int:id>/', WasteCarriersBrokersDealersAPIView.as_view()), 
 
+    path('api/waste-exemption-certificate/', WasteExemptionCertificatesAPIView.as_view()),
+    path('api/waste-exemption-certificate/<int:id>/', WasteExemptionCertificatesAPIView.as_view()),
+
+    path('api/waste-operations-permits/', WasteOperationsPermitsAPIView.as_view()),
+    path('api/waste-operations-permits/<int:id>/', WasteOperationsPermitsAPIView.as_view()),
+
+    path('api/waste-ewc-codes/', WasteEWCCodesAPIView.as_view()),
+    path('api/waste-ewc-codes/<int:id>/', WasteEWCCodesAPIView.as_view()),
+
 
 ############################################################################################
     # CSV Uploads

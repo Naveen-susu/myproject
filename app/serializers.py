@@ -401,3 +401,21 @@ class WasteCarriersBrokersDealersSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteCarriersBrokersDealers
         fields = '__all__'
+
+
+class WasteExemptionCertificatesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WasteExemptionCertificates
+        fields = '__all__'
+
+
+class WasteOperationsPermitsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WasteOperationsPermits
+        fields = '__all__'
+
+
+class WasteEWCCodesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WasteEWCCodes
+        fields = '__all__'

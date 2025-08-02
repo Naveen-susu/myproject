@@ -2809,6 +2809,168 @@ class CompanyHouseAPIView(
                 {"error": "Error fetching data from Companies House", "details": str(e)},
                 status=status.HTTP_502_BAD_GATEWAY
             )
+        
+
+
+
+
+
+
+class WasteExemptionCertificatesAPIView(generics.GenericAPIView,mixins.ListModelMixin, mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+
+    queryset = WasteExemptionCertificates.objects.all().order_by('id')
+    serializer_class = WasteExemptionCertificatesSerializer
+
+    def get_object(self, id):
+        try:
+
+            return WasteExemptionCertificates.objects.get(id=id)
+        except WasteExemptionCertificates.DoesNotExist:
+            raise Http404
+
+    def get(self, request,id=None, *args, **kwargs):
+        if id:
+            id_obj = self.get_object(id)
+            serializer = WasteExemptionCertificatesSerializer(id_obj)
+            return Response(serializer.data)
+        else:
+            alldata = WasteExemptionCertificates.objects.all()
+            serializer = WasteExemptionCertificatesSerializer(alldata, many=True)
+            return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = WasteExemptionCertificatesSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            data = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request,id=None, *args, **kwargs):
+        agent_type = self.get_object(id)
+        serializer = WasteExemptionCertificatesSerializer(agent_type, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            # data = serializer.data
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id=None, *args, **kwargs):
+        try:
+            WasteExemptionCertificates.objects.filter(id=id).delete()
+            message = {"success": "sucessfully deleted"}
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+            error = getattr(e, 'message', repr(e))
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+class WasteOperationsPermitsAPIView(generics.GenericAPIView,mixins.ListModelMixin, mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+
+    queryset = WasteOperationsPermits.objects.all().order_by('id')
+    serializer_class = WasteOperationsPermitsSerializer
+
+    def get_object(self, id):
+        try:
+
+            return WasteOperationsPermits.objects.get(id=id)
+        except WasteOperationsPermits.DoesNotExist:
+            raise Http404
+
+    def get(self, request,id=None, *args, **kwargs):
+        if id:
+            id_obj = self.get_object(id)
+            serializer = WasteOperationsPermitsSerializer(id_obj)
+            return Response(serializer.data)
+        else:
+            alldata = WasteOperationsPermits.objects.all()
+            serializer = WasteOperationsPermitsSerializer(alldata, many=True)
+            return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = WasteOperationsPermitsSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            data = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request,id=None, *args, **kwargs):
+        agent_type = self.get_object(id)
+        serializer = WasteOperationsPermitsSerializer(agent_type, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            # data = serializer.data
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id=None, *args, **kwargs):
+        try:
+            WasteOperationsPermits.objects.filter(id=id).delete()
+            message = {"success": "sucessfully deleted"}
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+            error = getattr(e, 'message', repr(e))
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+class WasteEWCCodesAPIView(generics.GenericAPIView,mixins.ListModelMixin, mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+
+    queryset = WasteEWCCodes.objects.all().order_by('id')
+    serializer_class = WasteEWCCodesSerializer
+
+    def get_object(self, id):
+        try:
+
+            return WasteEWCCodes.objects.get(id=id)
+        except WasteEWCCodes.DoesNotExist:
+            raise Http404
+
+    def get(self, request,id=None, *args, **kwargs):
+        if id:
+            id_obj = self.get_object(id)
+            serializer = WasteEWCCodesSerializer(id_obj)
+            return Response(serializer.data)
+        else:
+            alldata = WasteEWCCodes.objects.all()
+            serializer = WasteEWCCodesSerializer(alldata, many=True)
+            return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = WasteEWCCodesSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            data = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request,id=None, *args, **kwargs):
+        agent_type = self.get_object(id)
+        serializer = WasteEWCCodesSerializer(agent_type, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            # data = serializer.data
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def delete(self, request, id=None, *args, **kwargs):
+        try:
+            WasteEWCCodes.objects.filter(id=id).delete()
+            message = {"success": "sucessfully deleted"}
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+            error = getattr(e, 'message', repr(e))
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
 ###################################   CSV UPLOADS | DO NOT DELETE COMMENTED BELOW | SAVED FOR LATER USE ######################################
 
 # class FileUploadForm(forms.Form):

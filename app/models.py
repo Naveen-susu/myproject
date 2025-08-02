@@ -458,5 +458,55 @@ class WasteCarriersBrokersDealers(models.Model):
 
 
 
+class WasteExemptionCertificates(models.Model):
+    waste_exemption_no= models.TextField(db_column='waste_exemption_no',max_length=300, null=True, blank=True)
+    company_name= models.TextField(db_column='company_name',max_length=300, null=True, blank=True)
+    company_address= models.TextField(db_column='company_address',max_length=300, null=True, blank=True)
+    company_postcode= models.TextField(db_column='company_postcode',max_length=300, null=True, blank=True)
+    waste_site_address= models.TextField(db_column='waste_site_address',max_length=300, null=True, blank=True)
+    waste_site_postcode= models.TextField(db_column='waste_site_postcode',max_length=300, null=True, blank=True)
+    exemption_types= models.TextField(db_column='exemption_types',max_length=300, null=True, blank=True)
+    exemption_codes= models.TextField(db_column='exemption_codes',max_length=300, null=True, blank=True)
+    issue_date= models.DateField(db_column='issue_date',max_length=300, null=True, blank=True)
+    expiry_date= models.DateField(db_column='expiry_date',max_length=300, null=True, blank=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'waste_exemption_certificates'
+
+
+class WasteOperationsPermits(models.Model):
+    waste_destination_permit_no= models.TextField(db_column='waste_destination_permit_no',max_length=300, null=True, blank=True)
+    waste_management_license_no= models.TextField(db_column='waste_management_license_no',max_length=300, null=True, blank=True)
+    pre_ea_permit_ref= models.TextField(db_column='pre_ea_permit_ref',max_length=300, null=True, blank=True)
+    license_holder_name= models.TextField(db_column='license_holder_name',max_length=300, null=True, blank=True)
+    license_holder_trading_name= models.TextField(db_column='license_holder_trading_name',max_length=300, null=True, blank=True)
+    waste_destination_name= models.TextField(db_column='waste_destination_name',max_length=300, null=True, blank=True)
+    waste_destination_type= models.TextField(db_column='waste_destination_type',max_length=300, null=True, blank=True)
+    waste_destination_address= models.TextField(db_column='waste_destination_address',max_length=300, null=True, blank=True)
+    waste_destination_postcode= models.TextField(db_column='waste_destination_postcode',max_length=300, null=True, blank=True)
+    waste_destination_local_authority= models.TextField(db_column='waste_destination_local_authority',max_length=300, null=True, blank=True)
+    waste_destination_permit_status= models.TextField(db_column='waste_destination_permit_status',max_length=300, null=True, blank=True)
+    waste_destination_permit_issue_date= models.DateField(db_column='waste_destination_permit_issue_date',max_length=300, null=True, blank=True)
+    waste_destination_permit_variation_date= models.DateField(db_column='waste_destination_permit_variation_date',max_length=300, null=True, blank=True)
+    waste_destination_permit_transfer_date= models.DateField(db_column='waste_destination_permit_transfer_date',max_length=300, null=True, blank=True)
+    waste_destination_permit_effective_date= models.DateField(db_column='waste_destination_permit_effective_date',max_length=300, null=True, blank=True)
+    waste_destination_permit_surrendered_date= models.DateField(db_column='waste_destination_permit_surrendered_date',max_length=300, null=True, blank=True)
+    waste_destination_permit_revoked_date= models.DateField(db_column='waste_destination_permit_revoked_date',max_length=300, null=True, blank=True)
+    waste_destination_permit_suspended_date= models.DateField(db_column='waste_destination_permit_suspended_date',max_length=300, null=True, blank=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'waste_operations_permits'
+
+
+class WasteEWCCodes(models.Model):
+    ewc_code = models.TextField(db_column='ewc_code',max_length=300, null=True, blank=True)
+    description= models.TextField(db_column='description',max_length=300, null=True, blank=True)
+    density_conversion_factor=models.FloatField(db_column='density_conversion_factor',max_length=300, null=True, blank=True)
+    
+    class Meta:
+        managed = False
+        db_table = 'waste_ewc_codes'
 
 #########################################################################################################################
