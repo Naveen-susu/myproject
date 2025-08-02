@@ -2553,7 +2553,7 @@ class WastePhaseAPIView(
         
 
 
-# class WasteCarriersBrokersDealersAPIView(
+# class WasteCarriersBrokersDealers2APIView(
 #     generics.GenericAPIView,
 #     mixins.ListModelMixin,
 #     mixins.CreateModelMixin,
@@ -2832,37 +2832,6 @@ class WasteCarriersBrokersDealersAPIView(
             return Response({"success": "Successfully deleted"}, status=status.HTTP_200_OK)
         except Exception as e:
             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -3194,53 +3163,65 @@ class WasteOperationsPermitsAPIView(
 
 
 
-class WasteEWCCodesAPIView(generics.GenericAPIView,mixins.ListModelMixin, mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
-
+class WasteEWCCodesAPIView(
+    generics.GenericAPIView,
+    mixins.ListModelMixin,
+    mixins.CreateModelMixin,
+    mixins.UpdateModelMixin,
+    mixins.RetrieveModelMixin,
+    mixins.DestroyModelMixin
+):
     queryset = WasteEWCCodes.objects.all().order_by('id')
     serializer_class = WasteEWCCodesSerializer
 
     def get_object(self, id):
         try:
-
             return WasteEWCCodes.objects.get(id=id)
         except WasteEWCCodes.DoesNotExist:
             raise Http404
 
-    def get(self, request,id=None, *args, **kwargs):
+    def get(self, request, id=None, *args, **kwargs):
         if id:
-            id_obj = self.get_object(id)
-            serializer = WasteEWCCodesSerializer(id_obj)
-            return Response(serializer.data)
-        else:
-            alldata = WasteEWCCodes.objects.all()
-            serializer = WasteEWCCodesSerializer(alldata, many=True)
+            obj = self.get_object(id)
+            serializer = self.serializer_class(obj)
             return Response(serializer.data)
 
+        input_code = request.query_params.get("ewc_code", "").strip()
+
+        if input_code:
+            queryset = WasteEWCCodes.objects.all()[:100]  # Limit for performance
+            matches = sorted(
+                queryset,
+                key=lambda x: fuzz.ratio(input_code.lower(), (x.ewc_code or "").lower()),
+                reverse=True
+            )[:10]  # Return top 10 fuzzy matches
+        else:
+            matches = WasteEWCCodes.objects.all().order_by('-id')[:10]
+
+        serializer = self.serializer_class(matches, many=True)
+        return Response(serializer.data)
+
     def post(self, request, *args, **kwargs):
-        data = request.data
-        serializer = WasteEWCCodesSerializer(data=data)
+        serializer = self.serializer_class(data=request.data)
         if serializer.is_valid(raise_exception=True):
-            data = serializer.save()
+            serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def put(self, request,id=None, *args, **kwargs):
-        agent_type = self.get_object(id)
-        serializer = WasteEWCCodesSerializer(agent_type, data=request.data, partial=True)
+    def put(self, request, id=None, *args, **kwargs):
+        instance = self.get_object(id)
+        serializer = self.serializer_class(instance, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            # data = serializer.data
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id=None, *args, **kwargs):
         try:
             WasteEWCCodes.objects.filter(id=id).delete()
-            message = {"success": "sucessfully deleted"}
-            return Response(message, status=status.HTTP_200_OK)
+            return Response({"success": "Successfully deleted"}, status=status.HTTP_200_OK)
         except Exception as e:
-            error = getattr(e, 'message', repr(e))
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
 
 
 
