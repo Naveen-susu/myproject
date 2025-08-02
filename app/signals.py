@@ -4,11 +4,8 @@ from .models import CustomUser
 import boto3
 from django.conf import settings
 from django.db.models.signals import post_save
-from elasticsearch import Elasticsearch
-from .models import WasteCarriersBrokersDealers
-
-
-
+from .models import WasteCarriersBrokersDealers, WasteExemptionCertificates, WasteOperationsPermits
+from app.utils.elasticsearch_client import get_elasticsearch_client
 
 
 
@@ -30,15 +27,7 @@ def delete_user_in_cognito(sender, instance, **kwargs):
 
 @receiver(post_save, sender=WasteCarriersBrokersDealers)
 def index_to_elasticsearch(sender, instance, **kwargs):
-    es_host = getattr(settings, "ELASTICSEARCH_HOST", "http://elasticsearch:9200")
-    es = Elasticsearch(
-        es_host,
-        headers={
-            "Accept": "application/vnd.elasticsearch+json; compatible-with=8",
-            "Content-Type": "application/vnd.elasticsearch+json; compatible-with=8"
-        }
-    )
-
+    es = get_elasticsearch_client()
     doc = {
         "waste_carrier_license_no": instance.waste_carrier_license_no,
         "waste_carrier_name": instance.waste_carrier_name,
@@ -48,8 +37,56 @@ def index_to_elasticsearch(sender, instance, **kwargs):
         "waste_carrier_address": instance.waste_carrier_address,
         "waste_carrier_postcode": instance.waste_carrier_postcode
     }
+    try:
+        es.index(index="waste_carriers", id=instance.id, document=doc)
+    except Exception as e:
+        pass  # Optionally log
 
-    es.index(index="waste_carriers", id=instance.id, document=doc)
+@receiver(post_delete, sender=WasteCarriersBrokersDealers)
+def delete_from_elasticsearch(sender, instance, **kwargs):
+    es = get_elasticsearch_client()
+    try:
+        es.delete(index="waste_carriers", id=instance.id)
+    except Exception:
+        pass
 
 
 
+@receiver(post_save, sender=WasteExemptionCertificates)
+def index_waste_exemption(sender, instance, **kwargs):
+    es = get_elasticsearch_client()
+    doc = {
+        "company_name": instance.company_name,
+        "waste_exemption_no": instance.waste_exemption_no,
+        "waste_site_address": instance.waste_site_address,
+        "waste_site_postcode": instance.waste_site_postcode,
+        "issue_date": instance.issue_date,
+        "expiry_date": instance.expiry_date
+    }
+    es.index(index="waste_exemptions", id=instance.id, document=doc)
+
+@receiver(post_delete, sender=WasteExemptionCertificates)
+def delete_waste_exemption(sender, instance, **kwargs):
+    es = get_elasticsearch_client()
+    es.delete(index="waste_exemptions", id=instance.id, ignore=[404])
+
+
+@receiver(post_save, sender=WasteOperationsPermits)
+def index_waste_operations(sender, instance, **kwargs):
+    es = get_elasticsearch_client()
+    doc = {
+        "waste_destination_name": instance.waste_destination_name,
+        "waste_destination_postcode": instance.waste_destination_postcode,
+        "waste_destination_permit_no": instance.waste_destination_permit_no,
+        "waste_destination_permit_status": instance.waste_destination_permit_status,
+        "waste_destination_permit_effective_date": instance.waste_destination_permit_effective_date,
+        "waste_destination_permit_surrendered_date": instance.waste_destination_permit_surrendered_date,
+        "waste_destination_permit_revoked_date": instance.waste_destination_permit_revoked_date,
+        "waste_destination_permit_suspended_date": instance.waste_destination_permit_suspended_date
+    }
+    es.index(index="waste_operations", id=instance.id, document=doc)
+
+@receiver(post_delete, sender=WasteOperationsPermits)
+def delete_waste_operations(sender, instance, **kwargs):
+    es = get_elasticsearch_client()
+    es.delete(index="waste_operations", id=instance.id, ignore=[404])

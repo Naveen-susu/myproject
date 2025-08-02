@@ -406,16 +406,28 @@ class WasteCarriersBrokersDealersSerializer(serializers.ModelSerializer):
 class WasteExemptionCertificatesSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteExemptionCertificates
-        fields = '__all__'
+        fields = ['id', 'company_name', 'waste_exemption_no', 'waste_site_address', 'waste_site_postcode', 'issue_date', 'expiry_date']
 
 
 class WasteOperationsPermitsSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteOperationsPermits
-        fields = '__all__'
+        fields = ['id', 'waste_destination_name', 'waste_destination_postcode',  'waste_destination_permit_no', 'waste_destination_permit_status', 'waste_destination_permit_effective_date', 'waste_destination_permit_surrendered_date', 'waste_destination_permit_revoked_date',  'waste_destination_permit_suspended_date']
 
 
 class WasteEWCCodesSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteEWCCodes
         fields = '__all__'
+
+
+
+#Id wate operator cert
+# 'company_name', 'waste_exemption_no', 'waste_site_address', 'waste_site_postcode', 'issue_date', 'expiry_date'
+
+#permits
+# 'id', 'waste_destination_name', 'waste_destination_postcode',  'waste_destination_permit_no', 'waste_destination_permit_status', 'waste_destination_permit_effective_date', 'waste_destination_permit_surrendered_date', 'waste_destination_permit_revoked_date',  'waste_destination_permit_suspended_date'
+
+#ewc
+
+# 'id', 'ewc_code', 'description', 'density_conversion_factor'
