@@ -52,6 +52,7 @@ class Command(BaseCommand):
             "waste_operations": {
                 "properties": {
                     "waste_destination_name": {"type": "text"},
+                    "waste_destination_address": {"type": "text"} ,
                     "waste_destination_postcode": {"type": "keyword"},
                     "waste_destination_permit_no": {"type": "keyword"},
                     "waste_destination_permit_status": {"type": "keyword"},

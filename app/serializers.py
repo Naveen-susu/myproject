@@ -319,8 +319,11 @@ class WasteTransferNoteExtraSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteTransferNote
         # fields = '__all__'
-        fields = ['id','waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code', 'waste_quantity', 'container_size', 'number_of_containers','waste_transferor_name', 'waste_transferor_address', 'waste_transferor_postcode', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no', 'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status', 'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode', 'waste_carrier_license_no', 'waste_carrier_license_issue_date', 'waste_carrier_license_expiry_date', 'building_name', 'building_address','building_postcode', 'waste_disposal_code', 'waste_phase_code','filename']
+        fields = ['id','waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code', 'waste_quantity', 'container_size', 'number_of_containers','waste_transferor_name', 'waste_transferor_address', 'waste_transferor_postcode', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no', 'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status', 'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode', 'waste_carrier_license_no', 'waste_carrier_license_issue_date', 'waste_carrier_license_expiry_date', 'building_name', 'building_address','building_postcode', 'waste_disposal_code', 'waste_phase_code','filename', 'r_waste_tracking_note_code', 'r_waste_transfer_note_date', 'r_waste_transferor_name', 'r_waste_transferor_postcode', 'r_ewc_code', 'r_sic_code', 'r_waste_quantity', 'r_waste_destination_name', 'r_waste_destination_address', 'r_waste_destination_postcode', 'r_destination_permit_no', 'r_destination_exemption_no', 'r_waste_carrier_name', 'r_waste_carrier_address', 'r_waste_carrier_postcode', 'r_waste_carrier_license_no', 'r_container_size', 'r_number_of_containers', 'modified_date', 'modified_by', 'r_waste_transferor_address']
         # extra_fields = ['building_name', 'building_address']
+
+
+
 
     def get_building_name(self, obj):
         building = AppBuilding.objects.filter(id=obj.building_id).first()
@@ -412,7 +415,7 @@ class WasteExemptionCertificatesSerializer(serializers.ModelSerializer):
 class WasteOperationsPermitsSerializer(serializers.ModelSerializer):
     class Meta:
         model = WasteOperationsPermits
-        fields = ['id', 'waste_destination_name', 'waste_destination_postcode',  'waste_destination_permit_no', 'waste_destination_permit_status', 'waste_destination_permit_effective_date', 'waste_destination_permit_surrendered_date', 'waste_destination_permit_revoked_date',  'waste_destination_permit_suspended_date']
+        fields = ['id', 'waste_destination_name', 'waste_destination_address', 'waste_destination_postcode',  'waste_destination_permit_no', 'waste_destination_permit_status', 'waste_destination_permit_effective_date', 'waste_destination_permit_surrendered_date', 'waste_destination_permit_revoked_date',  'waste_destination_permit_suspended_date']
 
 
 class WasteEWCCodesSerializer(serializers.ModelSerializer):
@@ -420,6 +423,11 @@ class WasteEWCCodesSerializer(serializers.ModelSerializer):
         model = WasteEWCCodes
         fields = '__all__'
 
+
+class WasterTransferNoteChangeLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WasterTransferNoteChangeLog
+        fields = '__all__'
 
 
 #Id wate operator cert
@@ -431,3 +439,60 @@ class WasteEWCCodesSerializer(serializers.ModelSerializer):
 #ewc
 
 # 'id', 'ewc_code', 'description', 'density_conversion_factor'
+
+
+'''
+waste_transfer_note_data_id
+waste_tracking_note_code
+waste_transfer_note_date
+waste_transferor_name
+waste_transferor_address
+waste_transferor_postcode
+ewc_code
+sic_code
+waste_quantity
+waste_destination_name
+waste_destination_address
+waste_destination_postcode
+destination_permit_no
+destination_exemption_no
+waste_carrier_name
+waste_carrier_address
+waste_carrier_postcode
+waste_carrier_license_no
+container_size
+number_of_containers
+building_id
+customer_ref
+waste_disposal_code
+waste_phase_code
+r_waste_tracking_note_code
+r_waste_transfer_note_date
+r_waste_transferor_name
+r_waste_transferor_address
+r_waste_transferor_postcode
+r_ewc_code
+r_sic_code
+r_waste_quantity
+r_waste_destination_name
+r_waste_destination_address
+r_waste_destination_postcode
+r_destination_permit_no
+r_destination_exemption_no
+r_waste_carrier_name
+r_waste_carrier_address
+r_waste_carrier_postcode
+r_waste_carrier_license_no
+r_container_size
+r_number_of_containers
+r_waste_disposal_code
+r_waste_phase_code
+revised_date
+revised_by
+waste_carrier_license_issue_date
+waste_carrier_license_expiry_date
+destination_permit_issue_date
+destination_permit_status
+destination_exemption_issue_date
+destination_exemption_expiry_date
+'''

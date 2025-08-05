@@ -118,6 +118,9 @@ urlpatterns = [
     path('api/waste-ewc-codes/', WasteEWCCodesAPIView.as_view()),
     path('api/waste-ewc-codes/<int:id>/', WasteEWCCodesAPIView.as_view()),
 
+    path('api/waste-transfer-note-change-log/', WasterTransferNoteChangeLogAPIView.as_view()),
+    path('api/waste-transfer-note-change-log/<int:id>/', WasterTransferNoteChangeLogAPIView.as_view()),
+
 
 ############################################################################################
     # CSV Uploads

@@ -46,6 +46,7 @@ class Command(BaseCommand):
             doc = {
                 "waste_destination_name": obj.waste_destination_name,
                 "waste_destination_postcode": obj.waste_destination_postcode,
+                "waste_destination_address": obj.waste_destination_address,
                 "waste_destination_permit_no": obj.waste_destination_permit_no,
                 "waste_destination_permit_status": obj.waste_destination_permit_status,
                 "waste_destination_permit_effective_date": obj.waste_destination_permit_effective_date,

@@ -2325,6 +2325,59 @@ class WasteTransferNoteAPIView(
 
 
 
+# class WasteTransferNoteExtraAPIView(
+#     generics.GenericAPIView,
+#     mixins.ListModelMixin,
+#     mixins.CreateModelMixin,
+#     mixins.UpdateModelMixin,
+#     mixins.RetrieveModelMixin,
+#     mixins.DestroyModelMixin
+# ):
+#     queryset = WasteTransferNote.objects.all().order_by('id')
+#     serializer_class = WasteTransferNoteExtraSerializer
+
+#     def get_object(self, id):
+#         try:
+#             return WasteTransferNote.objects.get(id=id)
+#         except WasteTransferNote.DoesNotExist:
+#             raise Http404
+
+#     def get(self, request, id=None, *args, **kwargs):
+#         if id:
+#             note = self.get_object(id)
+#             serializer = WasteTransferNoteExtraSerializer(note)
+#             return Response(serializer.data)
+#         else:
+#             notes = WasteTransferNote.objects.all()
+#             serializer = WasteTransferNoteExtraSerializer(notes, many=True)
+#             return Response(serializer.data)
+
+#     def post(self, request, *args, **kwargs):
+#         serializer = WasteTransferNoteExtraSerializer(data=request.data)
+#         if serializer.is_valid(raise_exception=True):
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def put(self, request, id=None, *args, **kwargs):
+#         instance = self.get_object(id)
+#         serializer = WasteTransferNoteExtraSerializer(instance, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+#     def delete(self, request, id=None, *args, **kwargs):
+#         try:
+#             WasteTransferNote.objects.filter(id=id).delete()
+#             return Response({"success": "Successfully deleted"}, status=status.HTTP_200_OK)
+#         except Exception as e:
+#             return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
+        
+
+
+
+
 class WasteTransferNoteExtraAPIView(
     generics.GenericAPIView,
     mixins.ListModelMixin,
@@ -2362,20 +2415,116 @@ class WasteTransferNoteExtraAPIView(
     def put(self, request, id=None, *args, **kwargs):
         instance = self.get_object(id)
         serializer = WasteTransferNoteExtraSerializer(instance, data=request.data, partial=True)
+        
+        if serializer.is_valid():
+            updated_instance = serializer.save()
+
+            # 🔄 Set modified_by and modified_date on the WasteTransferNote
+            user = request.user
+            updated_instance.modified_by = getattr(user, 'email', 'system') if user and user.is_authenticated else 'system'
+            updated_instance.modified_date = now()
+            updated_instance.save()
+
+            # 🔄 Prepare changelog entry
+            revised_by = updated_instance.modified_by
+            revised_date = now()
+
+            track_fields = [
+                'waste_tracking_note_code', 'waste_transfer_note_date', 'ewc_code', 'sic_code',
+                'waste_quantity', 'container_size', 'number_of_containers', 'waste_transferor_name',
+                'waste_transferor_address', 'waste_transferor_postcode', 'waste_destination_name',
+                'waste_destination_address', 'waste_destination_postcode', 'destination_permit_no',
+                'destination_exemption_no', 'destination_permit_issue_date', 'destination_permit_status',
+                'waste_carrier_name', 'waste_carrier_address', 'waste_carrier_postcode',
+                'waste_carrier_license_no', 'waste_carrier_license_issue_date',
+                'waste_carrier_license_expiry_date', 'building_id', 'customer_ref',
+                'waste_disposal_code', 'waste_phase_code',
+                'r_waste_tracking_note_code', 'r_waste_transfer_note_date', 'r_waste_transferor_name',
+                'r_waste_transferor_postcode', 'r_ewc_code', 'r_sic_code', 'r_waste_quantity',
+                'r_waste_destination_name', 'r_waste_destination_address', 'r_waste_destination_postcode',
+                'r_destination_permit_no', 'r_destination_exemption_no', 'r_waste_carrier_name',
+                'r_waste_carrier_address', 'r_waste_carrier_postcode', 'r_waste_carrier_license_no',
+                'r_container_size', 'r_number_of_containers', 'r_waste_disposal_code', 'r_waste_phase_code',
+                'destination_exemption_issue_date', 'destination_exemption_expiry_date'
+            ]
+
+            log_data = {
+                'waste_transfer_note_data_id': updated_instance.id,
+                'revised_by': revised_by,
+                'revised_date': revised_date
+            }
+
+            for field in track_fields:
+                if hasattr(updated_instance, field):
+                    value = getattr(updated_instance, field)
+                    if hasattr(value, 'id'):
+                        log_data[field] = value.id
+                    else:
+                        log_data[field] = value
+
+            WasterTransferNoteChangeLog.objects.create(**log_data)
+
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, id=None, *args, **kwargs):
+        try:
+            WasteTransferNote.objects.filter(id=id).delete()
+            message = {"success": "sucessfully deleted"}
+            return Response(message, status=status.HTTP_200_OK)
+        except Exception as e:
+            error = getattr(e, 'message', repr(e))
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+
+
+class WasterTransferNoteChangeLogAPIView(generics.GenericAPIView,mixins.ListModelMixin, mixins.CreateModelMixin,mixins.UpdateModelMixin,mixins.RetrieveModelMixin, mixins.DestroyModelMixin):
+
+    queryset = WasterTransferNoteChangeLog.objects.all().order_by('id')
+    serializer_class = WasterTransferNoteChangeLogSerializer
+
+    def get_object(self, id):
+        try:
+
+            return WasterTransferNoteChangeLog.objects.get(id=id)
+        except WasterTransferNoteChangeLog.DoesNotExist:
+            raise Http404
+
+    def get(self, request,id=None, *args, **kwargs):
+        if id:
+            id_obj = self.get_object(id)
+            serializer = WasterTransferNoteChangeLogSerializer(id_obj)
+            return Response(serializer.data)
+        else:
+            alldata = WasterTransferNoteChangeLog.objects.all()
+            serializer = WasterTransferNoteChangeLogSerializer(alldata, many=True)
+            return Response(serializer.data)
+
+    def post(self, request, *args, **kwargs):
+        data = request.data
+        serializer = WasterTransferNoteChangeLogSerializer(data=data)
+        if serializer.is_valid(raise_exception=True):
+            data = serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def put(self, request,id=None, *args, **kwargs):
+        agent_type = self.get_object(id)
+        serializer = WasterTransferNoteChangeLogSerializer(agent_type, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            # data = serializer.data
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, id=None, *args, **kwargs):
         try:
-            WasteTransferNote.objects.filter(id=id).delete()
-            return Response({"success": "Successfully deleted"}, status=status.HTTP_200_OK)
+            WasterTransferNoteChangeLog.objects.filter(id=id).delete()
+            message = {"success": "sucessfully deleted"}
+            return Response(message, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
-
-
-
+            error = getattr(e, 'message', repr(e))
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
 
 
 class WasteTransferNoteMobileAPIView(
