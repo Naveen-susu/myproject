@@ -95,7 +95,7 @@ urlpatterns = [
     path('api/waste-transfer-note-extra/', WasteTransferNoteExtraAPIView.as_view()),
     path('api/waste-transfer-note-extra/<int:id>/', WasteTransferNoteExtraAPIView.as_view()),
 
-    path('api/waste-transfer-note-mobile/', WasteTransferNoteMobileAPIView.as_view()),
+    path('api/waste-transfer-note/', WasteTransferNoteMobileAPIView.as_view()),
     path('api/waste-transfer-note-mobile/<int:id>/', WasteTransferNoteMobileAPIView.as_view()),
 
     path('api/waste-disposal/', WasteDisposalAPIView.as_view()),
